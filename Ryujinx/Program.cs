@@ -71,7 +71,19 @@ namespace Ryujinx
 
             Version = ReleaseInformations.GetVersion();
 
-            Console.Title = $"Ryujinx Console {Version}";
+            try
+            {
+                Console.Title = $"Ryujinx Console {Version}";
+            }
+            catch (IOException)
+            {
+                // IOException is safe to ignore, it means the Console handle is unavailable (running GUI-only)
+            }
+            catch (Exception)
+            {
+                // Other exceptions might be important to surface so re-throw them
+                throw;
+            }
 
             // NOTE: GTK3 doesn't init X11 in a multi threaded way.
             // This ends up causing race condition and abort of XCB when a context is created by SPB (even if SPB do call XInitThreads).
