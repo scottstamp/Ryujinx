@@ -21,6 +21,13 @@ namespace Ryujinx
 {
     class Program
     {
+        /// NOTE: Safe to call DllImport for kernel32 here?
+        /// No idea, can be moved somewhere else if needed
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool AllocConsole();
+
         public static double WindowScaleFactor { get; private set; }
 
         public static string Version { get; private set; }
@@ -32,6 +39,15 @@ namespace Ryujinx
 
         static void Main(string[] args)
         { 
+            /// TODO: Add better Console on/off setting
+            /// Did this to work around potential arg parser error
+            /// writing log before the Console handle is allocated
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && args.Length > 0 && args[0] == "-v")
+            {
+                AllocConsole();
+            }
+
             // Parse Arguments.
             string launchPathArg      = null;
             string baseDirPathArg     = null;
